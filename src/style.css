@@ -22,9 +22,15 @@ html {
 }
 
 #board {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* grid-template-columns: repeat(3, auto);
+  justify-content: center; */
+}
+.row {
+  display: flex;
+  /* width: 100%; */
 }
 .cell {
   height: 4rem;
@@ -33,6 +39,7 @@ html {
   border: none;
   font-weight: 600;
   font-size: 50px;
+  border: solid var(--border-width) var(--border-color);
 }
 .cell::after {
   content: attr(data-content);
@@ -42,17 +49,4 @@ html {
 }
 [data-content="O"] {
   color: darkcyan;
-}
-
-[data-row="0"] {
-  border-bottom: solid var(--border-width) var(--border-color);
-}
-[data-row="2"] {
-  border-top: solid var(--border-width) var(--border-color);
-}
-[data-col="0"] {
-  border-right: solid var(--border-width) var(--border-color);
-}
-[data-col="2"] {
-  border-left: solid var(--border-width) var(--border-color);
 }

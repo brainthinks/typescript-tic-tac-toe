@@ -1,5 +1,5 @@
 {
-  "name": "vanilla-typescript",
+  "name": "ts-tic-tac-toe",
   "version": "1.0.0",
   "description": "JavaScript and TypeScript example starter project",
   "main": "index.html",
@@ -8,16 +8,16 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "@types/jest": "26.0.15",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.168",
+    "html-webpack-plugin": "^5.2.0",
     "parcel-bundler": "^1.6.1",
-    "typescript": "^4.2.2"
-  },
-  "keywords": [
-    "typescript",
-    "javascript"
-  ]
+    "typescript": "^4.2.2",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
+  }
 }

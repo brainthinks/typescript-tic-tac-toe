@@ -1,7 +1,7 @@
 import noop from 'lodash/noop';
 
 import {
-  Cell,
+  CellValue,
   CellType,
   EmptyCell,
   PlayedCell,
@@ -52,14 +52,14 @@ export default class Board {
   }
 
   get nextMove () {
-    return this.currentMove === Cell.X
-      ? Cell.O
-      : Cell.X;
+    return this.currentMove === CellValue.X
+      ? CellValue.O
+      : CellValue.X;
   }
 
   private resetBoard () {
     this.board = Array(this.rowCount).fill(null).map(() => {
-      return Array(this.columnCount).fill(Cell.empty);
+      return Array(this.columnCount).fill(CellValue.empty);
     }) as BoardType;
   }
 

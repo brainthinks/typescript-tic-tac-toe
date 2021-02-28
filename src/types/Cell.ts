@@ -9,9 +9,11 @@
  * @see - an older commit
  */
 
-// Single value enum representing an empty cell.
-// The key and value are different.
-// The value is a string literal.
+ /**
+  * Single value enum representing an empty cell.
+  * The key and value are different.
+  * The value is a string literal.
+  */
 export enum EmptyCell {
   empty = "",
 }
@@ -26,15 +28,16 @@ type EmptyCellTypeEnum = {
 }
 // The enum expressed as a type where the values are the enum's string literals
 type EmptyCellTypeString = {
-  [P in keyof typeof EmptyCell]: `${EmptyCell}`;
+  [P in keyof typeof EmptyCell]: `${typeof EmptyCell[P]}`;
 }
 // @todo - The union of enum type values
 // type EmptyCellValuesType = EmptyCellTypeEnum[keyof typeof EmptyCell];
 
-
-// Enum representing all playable cells
-// All keys are identical to their respective values.
-// All values are string literals
+/**
+ * Enum representing all playable cells
+ * All keys are identical to their respective values.
+ * All values are string literals
+ */
 export enum PlayedCell {
   X = "X",
   O = "O",
@@ -50,7 +53,7 @@ type PlayedCellTypeEnum = {
 }
 // The enum expressed as a type where the values are the enum's string literals
 type PlayedCellTypeString = {
-  [P in keyof typeof PlayedCell]: `${PlayedCell}`;
+  [P in keyof typeof PlayedCell]: `${typeof PlayedCell[P]}`;
 }
 // @todo - The union of enum type values
 // type PlayedCellValuesType = PlayedCellTypeEnum[keyof typeof PlayedCell];
@@ -72,6 +75,22 @@ type CellValuesString1 = `${EmptyCell}` | `${PlayedCell}`;
 // Union of all values as string literals read from the alread-collected values
 // Use this to be lax about the type, e.g. value can be explicit `PlayedCell.X` or `"X"`
 type CellValuesString2 = EmptyCellValuesString | PlayedCellValuesString;
+// A type that contains all enum's type values
+type CellsEnum = {
+  [P in CellKeys1]:
+    P extends PlayedCellKeys ? typeof PlayedCell[P] :
+    P extends EmptyCellKeys ? typeof EmptyCell[P] :
+    // it should be impossible to make it to null
+    null;
+}
+// A type that contains all enum's string literal values
+type CellsString = {
+  [P in CellKeys1]:
+    P extends PlayedCellKeys ? `${typeof PlayedCell[P]}` :
+    P extends EmptyCellKeys ? `${typeof EmptyCell[P]}` :
+    // it should be impossible to make it to null
+    null;
+}
 
 /**
  * A collection of fake tests to get the typescript compiler / linter to show
@@ -103,10 +122,17 @@ function tests () {
   testKeys('O')
 }
 
+/**
+ * All possible cell states as types.
+ */
 export type CellType = CellValuesEnum2;
 
-// @todo
-export const Cell = {
+/**
+ * All possible cell states as values.
+ *
+ * @todo - is there a better way to union the enums?
+ */
+export const CellValue = {
   ...EmptyCell,
   ...PlayedCell,
-};
+} as const;

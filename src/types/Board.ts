@@ -1,11 +1,11 @@
 import TupleOf from './TupleOf';
 
 import {
-  Cell,
+  CellValue,
   CellType,
 } from './Cell';
 
-export const FIRST_MOVE = Cell.X;
+export const FIRST_MOVE = CellValue.X;
 export const ROWS = 3;
 export const COLUMNS = 3;
 

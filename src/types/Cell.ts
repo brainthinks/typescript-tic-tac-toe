@@ -92,6 +92,19 @@ type CellsString = {
     null;
 }
 
+// The enum as an interface where all properties are expected to be equivalent
+// to the string values
+interface CellsStringInterface extends CellsString { }
+// The enum as an interface where all properties are expected to be equivalent
+// to the enum types
+interface CellsEnumInterface extends CellsEnum { }
+// The enum as an interface where all properties are expected to exist as any
+// type
+type CellsKeyInterfaceType = {
+  [P in CellKeys1]: any;
+}
+interface CellsKeyInterface extends CellsKeyInterfaceType {}
+
 /**
  * A collection of fake tests to get the typescript compiler / linter to show
  * you that the types declared above really work.

@@ -11,7 +11,14 @@
       "dom"
     ],
     "target": "es2019",
-    "rootDir": "src",
-    "moduleResolution": "node"
-  }
+    // "rootDir": "src",
+    "moduleResolution": "node",
+    "outDir": "./dist"
+  },
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "./dist"
+  ]
 }

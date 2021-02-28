@@ -19,6 +19,7 @@ For more information on the course, visit **[ui.dev/typescript](https://ui.dev/t
 1. Demonstrate proficiency with Webpack
 1. Demonstrate proficiency with Babel
 1. Demonstrate proficiency in JavaScript
+1. Demonstrate proficiency with ESLint
 1. Demonstrate proficiency in SASS and CSS Layouts / Flex
 
 

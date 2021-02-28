@@ -80,16 +80,14 @@ type CellsEnum = {
   [P in CellKeys1]:
     P extends PlayedCellKeys ? typeof PlayedCell[P] :
     P extends EmptyCellKeys ? typeof EmptyCell[P] :
-    // it should be impossible to make it to null
-    null;
+    never;
 }
 // A type that contains all enum's string literal values
 type CellsString = {
   [P in CellKeys1]:
     P extends PlayedCellKeys ? `${typeof PlayedCell[P]}` :
     P extends EmptyCellKeys ? `${typeof EmptyCell[P]}` :
-    // it should be impossible to make it to null
-    null;
+    never;
 }
 
 // The enum as an interface where all properties are expected to be equivalent

@@ -13,12 +13,10 @@
     "target": "es2019",
     // "rootDir": "src",
     "moduleResolution": "node",
+    "declaration": true,                         /* Generates corresponding '.d.ts' file. */
     "outDir": "./dist"
   },
   "include": [
     "./src"
-  ],
-  "exclude": [
-    "./dist"
   ]
 }

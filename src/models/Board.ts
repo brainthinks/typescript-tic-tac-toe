@@ -1,3 +1,5 @@
+import noop from 'lodash/noop';
+
 import {
   Cell,
   CellType,
@@ -9,26 +11,44 @@ import {
   FIRST_MOVE,
   ROWS,
   COLUMNS,
-  Row,
   Board as BoardType,
 } from '../types/Board';
-import { throws } from 'assert';
+
+export interface GameStats {
+  winner: PlayedCell | null;
+  wonBy: string | null;
+  isDraw: boolean;
+}
+
+export type OnGameOverType = (gameStats: GameStats) => void;
 
 export default class Board {
-  board: BoardType;
-  currentMove: PlayedCell;
-  gameOver: boolean;
-  moveCount: number;
-  rowCount: number = ROWS;
-  columnCount: number = COLUMNS;
-  maxMoves: number = this.rowCount * this.columnCount;
+  // The properties below which are not-null-asserted are assigned in the
+  // `reset` method, which is called in the constructor.
+  board!: BoardType;
+  currentMove!: PlayedCell;
+  winner!: PlayedCell | null;
+  wonBy!: string | null;
+  isDraw!: boolean;
+  isGameOver!: boolean;
+  moveCount!: number;
+  onGameOver: OnGameOverType = noop;
+  readonly rowCount: number = ROWS;
+  readonly columnCount: number = COLUMNS;
+  readonly maxMoves: number = this.rowCount * this.columnCount;
 
-  static factory () {
-    return new Board();
+  static factory (onGameOver: OnGameOverType = noop) {
+    return new Board(onGameOver);
   }
 
-  private constructor () {
+  private constructor (onGameOver: OnGameOverType = noop) {
     this.reset();
+
+    this.onGameOver = onGameOver;
+
+    if (this.rowCount !== this.columnCount) {
+      throw new Error('rows and columns must be the same dimensions');
+    }
   }
 
   get nextMove () {
@@ -38,17 +58,18 @@ export default class Board {
   }
 
   private resetBoard () {
-    this.board = [
-      [Cell.empty, Cell.empty, Cell.empty],
-      [Cell.empty, Cell.empty, Cell.empty],
-      [Cell.empty, Cell.empty, Cell.empty],
-    ];
+    this.board = Array(this.rowCount).fill(null).map(() => {
+      return Array(this.columnCount).fill(Cell.empty);
+    }) as BoardType;
   }
 
   reset (): void {
     this.resetBoard();
+    this.winner = null;
+    this.wonBy = null;
+    this.isDraw = false;
     this.currentMove = FIRST_MOVE;
-    this.gameOver = false;
+    this.isGameOver = false;
     this.moveCount = 0;
   }
 
@@ -72,14 +93,8 @@ export default class Board {
   }
 
   move (row: number, column: number): void {
-    if (this.gameOver) {
+    if (this.isGameOver) {
       throw new Error('Cannot move after game has ended');
-    }
-
-    this.moveCount++;
-
-    if (this.moveCount === this.maxMoves) {
-      return this.staleMate();
     }
 
     this.validateRow(row);
@@ -93,119 +108,119 @@ export default class Board {
 
     this.checkWinCondition();
 
+    this.moveCount++;
+
+    if (this.moveCount === this.maxMoves) {
+      return this.drawConditionMet();
+    }
+
     this.currentMove = this.nextMove;
   }
 
-  winConditionMet (winner: PlayedCell) {
-    this.gameOver = true;
-    console.log('winner is ', winner);
+  private winConditionMet (winner: PlayedCell, wonBy: string): void {
+    this.winner = winner;
+    this.wonBy = wonBy;
+    this.isDraw = false;
+    this.isGameOver = true;
+
+    console.log('winner is ', this.winner, ' by ', this.wonBy);
+
+    this.onGameOver({
+      winner: this.winner,
+      wonBy: this.wonBy,
+      isDraw: this.isDraw,
+    });
   }
 
-  staleMate () {
-    console.log('losers!')
+  private drawConditionMet (): void {
+    this.winner = null;
+    this.wonBy = null;
+    this.isDraw = true;
+    this.isGameOver = true;
+
+    console.log('game is over, draw');
+
+    this.onGameOver({
+      winner: this.winner,
+      wonBy: this.wonBy,
+      isDraw: this.isDraw,
+    });
   }
 
-  checkWinCondition () {
-    // check win via row
+  private isEmptyCellValue (cellValue: CellType): cellValue is EmptyCell {
+    return Object.values(EmptyCell).includes(cellValue as EmptyCell);
+  }
+
+  private isPlayedCellValue (cellValue: CellType): cellValue is PlayedCell {
+    return Object.values(PlayedCell).includes(cellValue as PlayedCell);
+  }
+
+  checkWinCondition (): void {
+    type BoardStateTracker = {
+      [prop in PlayedCell]: number;
+    }
+
+    type BoardStateTrackers = BoardStateTracker[];
+
+    const rowCounts: BoardStateTrackers = Array(this.rowCount).fill(null).map(() => ({
+      [PlayedCell.X]: 0,
+      [PlayedCell.O]: 0,
+    }));
+
+    const columnCounts: BoardStateTrackers = Array(this.columnCount).fill(null).map(() => ({
+      [PlayedCell.X]: 0,
+      [PlayedCell.O]: 0,
+    }));
+
+    const diagA = {
+      [PlayedCell.X]: 0,
+      [PlayedCell.O]: 0,
+    };
+
+    const diagB = {
+      [PlayedCell.X]: 0,
+      [PlayedCell.O]: 0,
+    };
+
     for (let row = 0; row < this.rowCount; row++) {
-      let occurrencesInRow = 0;
-      let firstCell = this.cellValue(row, 0);
-
-      // If the first cell in the row hasn't been played, there is no win via
-      // row
-      if (Object.values(EmptyCell).includes(firstCell)) {
-        continue;
-      }
-
       for (let column = 0; column < this.columnCount; column++) {
-        // if subsequent cells in the row aren't the same as the first,
-        // there is no win via row
-        if (firstCell !== this.cellValue(row, column)) {
-          break;
+        // @todo - prematurely asserting here.  Is there a better way to do it?
+        const cellValue = this.cellValue(row, column);
+
+        if (this.isEmptyCellValue(cellValue)) {
+          continue;
         }
 
-        occurrencesInRow++;
-      }
+        rowCounts[row][cellValue]++;
+        columnCounts[column][cellValue]++;
 
-      if (occurrencesInRow === this.columnCount) {
-        return this.winConditionMet(firstCell);
-      }
-    }
-
-    // check win via row
-    for (let column = 0; column < this.columnCount; column++) {
-      let occurrencesInColumn = 0;
-      let firstCell = this.cellValue(0, column);
-
-      // If the first cell in the row hasn't been played, there is no win via
-      // column
-      if (Object.values(EmptyCell).includes(firstCell)) {
-        continue;
-      }
-
-      for (let row = 0; row < this.rowCount; row++) {
-        // if subsequent cells in the column aren't the same as the first,
-        // there is no win via column
-        if (firstCell !== this.cellValue(row, column)) {
-          break;
+        if (rowCounts[row][cellValue] === this.rowCount) {
+          return this.winConditionMet(cellValue, `row ${row}`);
         }
 
-        occurrencesInColumn++;
-      }
-
-      if (occurrencesInColumn === this.rowCount) {
-        return this.winConditionMet(firstCell);
-      }
-    }
-
-    // check diagonals
-    if (ROWS === COLUMNS) {
-      // diagonal A is one type
-      // 0,0 1,1 2,2 x+1,y+1
-      let occurrencesInDiagonal = 0;
-      let firstCell: CellType | null = null;
-
-      for (let row = 0, column = 0; row < this.rowCount; row++, column++) {
-        if (firstCell === null) {
-          firstCell = this.cellValue(row, column);
-
-          if (Object.values(EmptyCell).includes(firstCell)) {
-            continue;
-          }
-        }
-
-        if (firstCell === this.cellValue(row, column)) {
-          occurrencesInDiagonal++;
+        if (columnCounts[column][cellValue] === this.columnCount) {
+          return this.winConditionMet(cellValue, `column ${column}`);
         }
       }
 
-      if (occurrencesInDiagonal === this.rowCount) {
-        console.log('won via diagonalA')
-        return this.winConditionMet(firstCell);
-      }
+      const diagAValue = this.cellValue(row, row);
 
-      // diagonal B is one type
-      // 0,2 1,1 2,0 x+1,y-1
-      occurrencesInDiagonal = 0;
-      firstCell = null;
+      if (this.isPlayedCellValue(diagAValue)) {
+        diagA[diagAValue]++;
 
-      for (let row = 0, column = (this.columnCount - 1); row < this.rowCount; row++, column--) {
-        if (firstCell === null) {
-          firstCell = this.cellValue(row, column);
-
-          if (Object.values(EmptyCell).includes(firstCell)) {
-            continue;
-          }
-        }
-
-        if (firstCell === this.cellValue(row, column)) {
-          occurrencesInDiagonal++;
+        if (diagA[diagAValue] === this.columnCount) {
+          return this.winConditionMet(diagAValue, 'diagA');
         }
       }
 
-      if (occurrencesInDiagonal === this.rowCount) {
-        console.log('won via diagonalB')
-        return this.winConditionMet(firstCell);
+      const diagBValue = this.cellValue(row, this.columnCount - row - 1);
+
+      if (this.isPlayedCellValue(diagBValue)) {
+        diagB[diagBValue]++;
+
+        if (diagB[diagBValue] === this.columnCount) {
+          return this.winConditionMet(diagBValue, 'diagB');
+        }
       }
     }
   }

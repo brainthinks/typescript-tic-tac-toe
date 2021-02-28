@@ -1,21 +1,9 @@
 import "./style.css";
 
-import {
-  Cell,
-  CellType,
-  EmptyCell,
-  PlayedCell,
-} from './types/Cell';
-
-import {
-  FIRST_MOVE,
-  ROWS,
-  COLUMNS,
-  Row,
-  Board as BoardType,
-} from './types/Board';
-
-import Board from './models/Board';
+import Board, {
+  GameStats,
+  OnGameOverType,
+} from './models/Board';
 
 function createCell(
   row: number,
@@ -47,6 +35,24 @@ function createCell(
   return cell;
 }
 
+function setStatusText () {
+  if (!moveElement) {
+    throw new Error("No Move text element");
+  }
+
+  if (!board.isGameOver) {
+    moveElement.innerText = `Next Move: ${board.currentMove}`;
+    return;
+  }
+
+  if (board.isDraw) {
+    moveElement.innerText = 'Draw';
+    return;
+  }
+
+  moveElement.innerText = `Winner: ${board.winner} by ${board.wonBy}`;
+}
+
 function renderBoard() {
   if (!appElement) {
     throw new Error("Cannot find app");
@@ -59,30 +65,28 @@ function renderBoard() {
   boardElement.innerHTML = "";
 
   for (let i = 0; i < board.rowCount; i++) {
+    const row = document.createElement('div');
+    row.classList.add('row');
+
     for (let j = 0; j < board.columnCount; j++) {
-      boardElement.appendChild(createCell(i, j));
+      row.appendChild(createCell(i, j));
     }
+
+    boardElement.appendChild(row);
   }
 
-  const oldMoveElement = document.getElementById("move-element");
-
-  if (oldMoveElement) {
-    oldMoveElement.remove();
-  }
-
-  const moveElement = document.createElement("p");
-
-  moveElement.id = "move-element";
-  moveElement.innerText = `Next Move: ${board.currentMove}`;
-  moveElement.classList.add("current-move");
-  appElement.insertBefore(moveElement, document.getElementById("reset"));
+  setStatusText();
 }
 
-function main() {
+function main () {
   const resetButton = document.getElementById("reset");
 
   if (!resetButton) {
     throw new Error("No Reset button");
+  }
+
+  if (!moveElement) {
+    throw new Error("No Move text element");
   }
 
   board = Board.factory();
@@ -99,5 +103,6 @@ function main() {
 let board: Board;
 const appElement = document.getElementById("app");
 const boardElement = document.getElementById("board");
+const moveElement = document.getElementById("move");
 
 main();

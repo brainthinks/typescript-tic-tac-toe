@@ -1,6 +1,9 @@
 'use strict';
 
-const path = require('path');
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+// const path = require('path');
+
 // const babelConfig = require('./babel.config')();
 // const testOverride = require('./test/jest/.eslintrc.jest');
 
@@ -112,25 +115,27 @@ module.exports = {
   extends: [
     'standard',
     'eslint:recommended',
-  ],
-  root: true,
-  parser: '@babel/eslint-parser',
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    ecmaFeatures: {
-      impliedStrict: true,
-    },
-    babelOptions: {
-      configFile: path.join(__dirname, 'babel.config.js'),
-    },
-  },
-  plugins: [
-    '@babel/eslint-plugin',
+    'plugin:@typescript-eslint/recommended',
   ],
   env: {
     browser: true,
   },
+  root: true,
+  // parser: '@babel/eslint-parser',
+  parser: '@typescript-eslint/parser',
+  // parserOptions: {
+  //   ecmaVersion: 2020,
+  //   sourceType: 'module',
+  //   ecmaFeatures: {
+  //     impliedStrict: true,
+  //   },
+  //   babelOptions: {
+  //     configFile: path.join(__dirname, 'babel.config.js'),
+  //   },
+  // },
+  plugins: [
+    '@typescript-eslint',
+  ],
   rules,
   // overrides: [
   //   {

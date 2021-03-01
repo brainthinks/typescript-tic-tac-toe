@@ -2,6 +2,8 @@
 
 Note that this is fork of a project used in UI.dev's "TypeScript" course project.
 
+My fork of this project now bears almost no resemblance to the original project.
+
 For more information on the course, visit **[ui.dev/typescript](https://ui.dev/typescript/)**.
 
 

@@ -6,9 +6,9 @@ import {
 } from './Cell';
 
 export const FIRST_MOVE = CellValue.X;
-export const ROWS = 3;
-export const COLUMNS = 3;
+export const ROWS = 3 as const;
+export const COLUMNS = 3 as const;
 
-// @todo - how do we make the second param for TupleOf dynamic?
-export type Row = TupleOf<CellType, 3>;
-export type Board = TupleOf<Row, 3>;
+// @todo - how do we make the second param for TupleOf truly dynamic?
+export type Row = TupleOf<CellType, typeof ROWS>;
+export type Board = TupleOf<Row, typeof COLUMNS>;

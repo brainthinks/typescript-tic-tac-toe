@@ -9,13 +9,18 @@
  * @see - an older commit
  */
 
- /**
+//  These rules are ok to disable here because we are doing POCs for
+// demonstration purposes.
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-interface */
+
+/**
   * Single value enum representing an empty cell.
   * The key and value are different.
   * The value is a string literal.
   */
 export enum EmptyCell {
-  empty = "",
+  empty = '',
 }
 
 // The union of keys
@@ -39,8 +44,8 @@ type EmptyCellTypeString = {
  * All values are string literals
  */
 export enum PlayedCell {
-  X = "X",
-  O = "O",
+  X = 'X',
+  O = 'O',
 }
 
 // The union of keys
@@ -70,10 +75,10 @@ type CellValuesEnum1 = (typeof EmptyCell[keyof typeof EmptyCell]) | (typeof Play
 // Use this to be strict about the type, e.g. value must be explicit `PlayedCell.X`
 type CellValuesEnum2 = EmptyCell | PlayedCell;
 // Union of all values as string literals read directly from the enums
-// Use this to be lax about the type, e.g. value can be explicit `PlayedCell.X` or `"X"`
+// Use this to be lax about the type, e.g. value can be explicit `PlayedCell.X` or `'X'`
 type CellValuesString1 = `${EmptyCell}` | `${PlayedCell}`;
 // Union of all values as string literals read from the alread-collected values
-// Use this to be lax about the type, e.g. value can be explicit `PlayedCell.X` or `"X"`
+// Use this to be lax about the type, e.g. value can be explicit `PlayedCell.X` or `'X'`
 type CellValuesString2 = EmptyCellValuesString | PlayedCellValuesString;
 // A type that contains all enum's type values
 type CellsEnum = {
@@ -98,7 +103,9 @@ interface CellsStringInterface extends CellsString { }
 interface CellsEnumInterface extends CellsEnum { }
 // The enum as an interface where all properties are expected to exist as any
 // type
+
 type CellsKeyInterfaceType = {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   [P in CellKeys1]: any;
 }
 interface CellsKeyInterface extends CellsKeyInterfaceType {}
@@ -108,29 +115,29 @@ interface CellsKeyInterface extends CellsKeyInterfaceType {}
  * you that the types declared above really work.
  */
 function tests () {
-  function testValues(x: CellValuesString1) {
+  function testValues (x: CellValuesString1) {
     console.log(x);
   }
 
-  function testKeys(x: CellKeys1) {
+  function testKeys (x: CellKeys1) {
     console.log(x);
   }
 
-  testValues(EmptyCell.empty)
-  testValues("") // should pass
-  // testValues("empty") // should fail
+  testValues(EmptyCell.empty);
+  testValues(''); // should pass
+  // testValues('empty') // should fail
   // testKeys(EmptyCell.empty) // should fail
-  testKeys('empty')
+  testKeys('empty');
 
-  testValues(PlayedCell.X)
-  testValues("X")
-  testKeys(PlayedCell.X)
-  testKeys('X')
+  testValues(PlayedCell.X);
+  testValues('X');
+  testKeys(PlayedCell.X);
+  testKeys('X');
 
-  testValues(PlayedCell.O)
-  testValues("O")
-  testKeys(PlayedCell.O)
-  testKeys('O')
+  testValues(PlayedCell.O);
+  testValues('O');
+  testKeys(PlayedCell.O);
+  testKeys('O');
 }
 
 /**

@@ -37,7 +37,7 @@ export default class Board {
   readonly columnCount: number = COLUMNS;
   readonly maxMoves: number = this.rowCount * this.columnCount;
 
-  static factory (onGameOver: OnGameOverType = noop) {
+  static factory (onGameOver: OnGameOverType = noop): Board {
     return new Board(onGameOver);
   }
 
@@ -51,7 +51,7 @@ export default class Board {
     }
   }
 
-  get nextMove () {
+  get nextMove (): PlayedCell {
     return this.currentMove === CellValue.X
       ? CellValue.O
       : CellValue.X;
@@ -73,14 +73,14 @@ export default class Board {
     this.moveCount = 0;
   }
 
-  validateRow (row: any): void {
-    if (row < 0 || row >= this.rowCount) {
+  validateRow (row: unknown): void {
+    if (typeof row !== 'number' || row < 0 || row >= this.rowCount) {
       throw new Error(`"${row}" is not a valid row index`);
     }
   }
 
-  validateColumn (column: any): void {
-    if (column < 0 || column >= this.columnCount) {
+  validateColumn (column: unknown): void {
+    if (typeof column !== 'number' || column < 0 || column >= this.columnCount) {
       throw new Error(`"${column}" is not a valid column index`);
     }
   }
